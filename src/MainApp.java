@@ -1,3 +1,4 @@
+import ch.bildspur.postfx.builder.PostFX;
 import ddf.minim.AudioInput;
 import ddf.minim.Minim;
 import ddf.minim.analysis.BeatDetect;
@@ -12,6 +13,7 @@ public class MainApp extends PApplet{
     FFT fft;
     BeatDetect bd;
     PVector center;
+    PostFX fx;
 
     public static void main(String[] args) {
         PApplet.main("MainApp");
@@ -23,13 +25,14 @@ public class MainApp extends PApplet{
 
     public void setup() {
         background(0);
-        strokeCap(ROUND);
+        strokeCap(PROJECT);
         colorMode(HSB);
         m = new Minim(this);
         in = m.getLineIn();
         fft = new FFT(in.mix.size(), in.sampleRate());
         bd = new BeatDetect(in.mix.size(), in.sampleRate());
         center = new PVector(0,0);
+        fx = new PostFX(this);
     }
 
     public void draw() {
@@ -37,27 +40,23 @@ public class MainApp extends PApplet{
         bd.detect(in.mix);
         background(0, 5);
         stroke(255);
-        strokeWeight(1);
-
         translate(width/2, height/2);
         rotate(radians(frameCount/12f));
         drawCircle(6, 1);
+        fx.render().compose();
     }
 
     void drawCircle(float detail, float r){
         if(r < 0 || r > width){
             return;
         }
-//        rotate(sin(radians(frameCount)));
+        rotate(radians(frameCount/128f));
         for(float i = 0; i < 360f; i+= 360f/detail){
             int m = round(map(r, 0, width, 0,fft.getBandWidth()));
-            int h = round(map(r, 0, width, 0,bd.detectSize()));
-
-            float hue = (fft.getBand(m)*20)%255;
+            float hue = (frameCount+fft.getBand(m)*4)%255;
             float sat = 155;
             float br = 255;
-            float alpha = 25;
-
+            float alpha = 100;
             stroke(hue, sat, br, alpha);
             strokeWeight(fft.getBand(m));
             PVector a = getPointAtAngle(center, r, i);
