@@ -40,6 +40,7 @@ public class MainApp extends PApplet{
         strokeWeight(1);
 
         translate(width/2, height/2);
+        rotate(radians(frameCount/12f));
         drawCircle(6, 1);
     }
 
@@ -47,32 +48,30 @@ public class MainApp extends PApplet{
         if(r < 0 || r > width){
             return;
         }
+//        rotate(sin(radians(frameCount)));
         for(float i = 0; i < 360f; i+= 360f/detail){
             int m = round(map(r, 0, width, 0,fft.getBandWidth()));
             int h = round(map(r, 0, width, 0,bd.detectSize()));
 
-            float hue =  ((frameCount/2f+fft.getBand(m))*5)%255;
-            float sat = 60;
-            float br = 180;
-            float alpha = 80;
-
-            if(h < bd.detectSize() && bd.isOnset(h)){
-                sat = 255;
-                br = 255;
-                alpha = 100;
-            }
+            float hue = (fft.getBand(m)*20)%255;
+            float sat = 155;
+            float br = 255;
+            float alpha = 25;
 
             stroke(hue, sat, br, alpha);
-            strokeWeight(fft.getBand(m)/2);
+            strokeWeight(fft.getBand(m));
             PVector a = getPointAtAngle(center, r, i);
             PVector b = getPointAtAngle(center, r, i+360f/detail);
             line(a.x,a.y,b.x,b.y);
         }
-        drawCircle(detail, r+10);
+        drawCircle(detail, r+16);
 
     }
 
     public PVector getPointAtAngle(PVector center, float radius, float angle) {
-        return new PVector(center.x + radius * cos(angle * PI / 180), center.y + radius * sin(angle * PI / 180));
+        return new PVector(
+                center.x + radius * cos(angle * PI / 180),
+                center.y + radius * sin(angle * PI / 180)
+        );
     }
 }
