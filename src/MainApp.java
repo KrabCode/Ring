@@ -52,13 +52,13 @@ public class MainApp extends PApplet{
         }
         rotate(radians(frameCount/128f));
         for(float i = 0; i < 360f; i+= 360f/detail){
-            int m = round(map(r, 0, width, 0,fft.getBandWidth()));
+            int m = round(map(r, 0, width, 0,fft.getBandWidth()/2f));
             float hue = (frameCount+fft.getBand(m)*4)%255;
             float sat = 155;
             float br = 255;
-            float alpha = 100;
+            float alpha = 80;
             stroke(hue, sat, br, alpha);
-            strokeWeight(fft.getBand(m));
+            strokeWeight(fft.getBand(m)/2f);
             PVector a = getPointAtAngle(center, r, i);
             PVector b = getPointAtAngle(center, r, i+360f/detail);
             line(a.x,a.y,b.x,b.y);
