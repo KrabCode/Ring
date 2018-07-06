@@ -1,2 +1,2 @@
 # Ring
-music visualiser
+![example](https://raw.githubusercontent.com/KrabCode/Ring/master/bmp.png)
