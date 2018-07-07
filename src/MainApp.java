@@ -22,7 +22,7 @@ public class MainApp extends PApplet{
     }
 
     public void settings() {
-        fullScreen(P2D);
+        fullScreen(P2D, 1);
 //        fullScreen(P3D);
 //        size(800,600,P2D);
     }
@@ -44,10 +44,10 @@ public class MainApp extends PApplet{
     public void draw() {
         fft.forward(in.mix);
         bd.detect(in.mix);
+
         background(0);
-//        noLights();
-        lights();
         noFill();
+
         translate(width/2,height/2);
         drawCircle(12, 1);
 //        cam.beginHUD();
@@ -68,7 +68,7 @@ public class MainApp extends PApplet{
         for(float i = 0; i < 360f; i+= 360f/detail){
             pushMatrix();
             float my = map(mouseY, 0, height, 1, 16);
-            int b = round(r/scl/my);
+            int b = round(r/scl);
 
             float x0 = getXAtAngle(center,r,i);
             float y0 = getYAtAngle(center,r,i);
@@ -86,13 +86,13 @@ public class MainApp extends PApplet{
             }
 
             float hue = (frameCount/8f+fft.getBand(b)*5)%255;
-            float sat = fft.getBand(b)*5;
+            float sat = 255;
             float br = fft.getBand(b)*5;
             float alpha = 50;
 
             stroke(hue, sat, br, alpha);
             strokeWeight(fft.getBand(b));
-//            rotate(fft.getBand(b)/16f);
+            
 //            fill(hue, sat, br, alpha);
 //            noStroke();
 
