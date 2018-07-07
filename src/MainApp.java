@@ -24,7 +24,7 @@ public class MainApp extends PApplet{
     }
 
     public void setup() {
-        background(0);
+        background(0,5);
         strokeCap(PROJECT);
         colorMode(HSB);
         m = new Minim(this);
@@ -38,39 +38,71 @@ public class MainApp extends PApplet{
     public void draw() {
         fft.forward(in.mix);
         bd.detect(in.mix);
-        background(0, 5);
-        stroke(255);
+
+        noStroke();
+        fill(0);
+        rect(0,0,width,height);
+
         translate(width/2, height/2);
-        rotate(radians(frameCount/12f));
-        drawCircle(6, 1);
-        fx.render().compose();
+        drawCircle(8, 1);
+
+        fx.render().sobel().compose();
     }
 
     void drawCircle(float detail, float r){
         if(r < 0 || r > width){
             return;
         }
-        rotate(radians(frameCount/128f));
+
+        float xFirst = 0;
+        float yFirst = 0;
+
         for(float i = 0; i < 360f; i+= 360f/detail){
-            int m = round(map(r, 0, width, 0,fft.getBandWidth()/2f));
-            float hue = (frameCount+fft.getBand(m)*4)%255;
-            float sat = 155;
+            int m = round(map(r, 0, width, 0,fft.specSize()));
+
+            float hue = (frameCount/2f+abs(fft.getBand(m))*25)%255;
+            float sat = 255;
             float br = 255;
-            float alpha = 80;
+            float alpha = 30;
+
             stroke(hue, sat, br, alpha);
-            strokeWeight(fft.getBand(m)/2f);
-            PVector a = getPointAtAngle(center, r, i);
-            PVector b = getPointAtAngle(center, r, i+360f/detail);
-            line(a.x,a.y,b.x,b.y);
+            strokeWeight((fft.getBand(m)));
+
+            float x0 = getXAtAngle(center,r,i);
+            float y0 = getYAtAngle(center,r,i);
+            float x1 = getXAtAngle(center,r,i+360f/detail);
+            float y1 = getYAtAngle(center,r,i+360f/detail);
+
+            //wrap last to first
+            if(i == 0){
+                xFirst = x0;
+                yFirst = y0;
+            }
+            if(i+360f/detail > 360){
+                x1=xFirst;
+                y1=yFirst;
+            }
+
+            line(x0,y0,x1,y1);
         }
-        drawCircle(detail, r+16);
-
+        drawCircle(detail, r+6);//map(mouseY,0, height, 2, 30));
     }
 
-    public PVector getPointAtAngle(PVector center, float radius, float angle) {
-        return new PVector(
-                center.x + radius * cos(angle * PI / 180),
-                center.y + radius * sin(angle * PI / 180)
-        );
+    public float getXAtAngle(PVector center, float radius, float angle) {
+        return center.x + radius * cos(angle * PI / 180);
     }
+    public float getYAtAngle(PVector center, float radius, float angle) {
+        return center.y + radius * sin(angle * PI / 180);
+    }
+
+    void drawFFT(){
+        stroke(255);
+        for(int i = 0; i < fft.specSize(); i++)
+        {
+            stroke(255);
+            strokeWeight(1);
+            line(i, height, i, height - fft.getBand(i)*4);
+        }
+    }
+
 }
