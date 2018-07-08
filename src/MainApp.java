@@ -24,7 +24,7 @@ public class MainApp extends PApplet{
 
     public void settings() {
 //        fullScreen(P2D, 1);
-        fullScreen(P3D);
+        fullScreen(P3D, 1);
 //        size(800,600,P2D);
     }
 
@@ -52,6 +52,8 @@ public class MainApp extends PApplet{
 
         if(!threeD){
             translate(width/2,height/2);
+        }else{
+            rotateZ(radians(frameCount/10f));
         }
         drawCircle(12, 1);
 
@@ -94,7 +96,7 @@ public class MainApp extends PApplet{
             float hue = (frameCount/8f+fft.getBand(b)*5)%255;
             float sat = 255;
             float br = fft.getBand(b)*5;
-            float alpha = 80;
+            float alpha = 100;
 
             if(threeD){
                 fill(hue, sat, br, alpha);
