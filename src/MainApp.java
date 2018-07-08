@@ -16,28 +16,30 @@ public class MainApp extends PApplet{
     PVector center;
     PostFX fx;
     PeasyCam cam;
+    boolean threeD = true;
 
     public static void main(String[] args) {
         PApplet.main("MainApp");
     }
 
     public void settings() {
-        fullScreen(P2D, 1);
-//        fullScreen(P3D);
+//        fullScreen(P2D, 1);
+        fullScreen(P3D);
 //        size(800,600,P2D);
     }
 
     public void setup() {
         background(0);
         strokeCap(PROJECT);
-        strokeJoin(MITER);
         colorMode(HSB);
         m = new Minim(this);
         in = m.getLineIn();
         fft = new FFT(in.mix.size(), in.sampleRate());
         bd = new BeatDetect(in.mix.size(), in.sampleRate());
         center = new PVector(0,0);
-//        cam = new PeasyCam(this,g,500);
+        if(threeD){
+            cam = new PeasyCam(this,g,500);
+        }
         fx = new PostFX(this);
     }
 
@@ -46,17 +48,20 @@ public class MainApp extends PApplet{
         bd.detect(in.mix);
 
         background(0);
-        noFill();
+        lights();
 
-        translate(width/2,height/2);
+        if(!threeD){
+            translate(width/2,height/2);
+        }
         drawCircle(12, 1);
-//        cam.beginHUD();
+
+        if(threeD){cam.beginHUD();}
         fx.render().sobel().compose();
-//        cam.endHUD();
+        if(threeD){cam.endHUD();}
     }
 
     void drawCircle(float detail, float r){
-        float scl = 2.5f;
+        float scl = 1f;
 
         if(r < 0 || r > fft.specSize()*scl){
             return;
@@ -67,8 +72,9 @@ public class MainApp extends PApplet{
 
         for(float i = 0; i < 360f; i+= 360f/detail){
             pushMatrix();
+
             float my = map(mouseY, 0, height, 1, 16);
-            int b = round(r/scl);
+            int b = round(r/scl/my);
 
             float x0 = getXAtAngle(center,r,i);
             float y0 = getYAtAngle(center,r,i);
@@ -88,20 +94,23 @@ public class MainApp extends PApplet{
             float hue = (frameCount/8f+fft.getBand(b)*5)%255;
             float sat = 255;
             float br = fft.getBand(b)*5;
-            float alpha = 50;
+            float alpha = 80;
 
-            stroke(hue, sat, br, alpha);
-            strokeWeight(fft.getBand(b));
-            
-//            fill(hue, sat, br, alpha);
-//            noStroke();
-
-//            translate(x0,y0, 0);
-//            box(x1,y1,z1);
-            line(x0,y0,x1,y1);
+            if(threeD){
+                fill(hue, sat, br, alpha);
+                noStroke();
+                translate(x0,y0, 0);
+                box(10,10,br);
+            }else{
+                noFill();
+                stroke(hue, sat, br, alpha);
+                strokeWeight(fft.getBand(b));
+                line(x0, y0, x1, y1);
+            }
             popMatrix();
         }
-        drawCircle(detail, r+4);
+
+        drawCircle(detail, r+15);
     }
 
     public float getXAtAngle(PVector center, float radius, float angle) {
